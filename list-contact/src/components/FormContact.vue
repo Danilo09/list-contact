@@ -1,11 +1,11 @@
 <template>
-    <div class="row mt-5">
+    <div class="row">
         <div class="col-12 border-bottom mb-5 d-flex justify-content-between align-items-center">
             <!-- <h2 :title="ex">{{name}}</h2> -->
             <!-- <p>{{contactsCount}}</p> -->
         </div>
 
-        <div class="col-4">
+        <div class="col-12 col-lg-4 form-contact">
 
             <form action="">
 
@@ -16,7 +16,7 @@
 
                 <div class="form-group mr-1">
                     <label>Cpf</label>
-                    <input type="text" class="form-control" placeholder="Nome Completo..." v-model="contact.cpf">
+                    <input type="text" class="form-control" placeholder="Informe o CPF" v-model="contact.cpf">
                 </div>
 
 
@@ -39,7 +39,7 @@
 
         <div class="col-8 border-left">
             
-            <div class="contact" v-if="contacts.lenght">
+            <div class="contact" v-if="contacts">
                     
                 <div class="col-12 mb-2" v-for="contact in contacts" v-bind:key="contact.key">
 
@@ -59,12 +59,13 @@
                 </div>
 
             </div>
-            <div v-else>Nenhum contato encontrado!</div>
+            <!-- <div v-else>Nenhum contato encontrado!</div> -->
         </div>
     </div>
 </template>
 
 <script>
+import axios from "axios"
 export default {
   name: 'FormContact',
   props: {
@@ -75,7 +76,7 @@ export default {
       contactsResponse: [],
       name: 'Contatos App',
       contact: {
-          id: '',
+          id: null,
           name: '',
           cpf: '',
           email: '',
@@ -90,12 +91,23 @@ export default {
             return `Total de contatos é ${this.contacts.length}`;
         }
     },
-    // mounted () {
-    //   axios
-    //     .get('https://private-21e8de-rafaellucio.apiary-mock.com/users')
-    //     .then(response => (
-    //         this.contactsResponse = response))
-    // },
+    mounted () {
+    var newContacts
+      axios
+        .get('https://private-21e8de-rafaellucio.apiary-mock.com/users')
+        .then(response => (
+                this.contactsResponse = response.data,
+                newContacts = this.contactsResponse,
+                Object.keys(newContacts).map(
+                    function(object){
+                    newContacts[object]["id"]= new Date().getTime();
+                }),
+
+                localStorage.setItem("contac", JSON.stringify(newContacts)),
+
+                this.contact = newContacts
+            ))
+    },
     created() {
         this.contacts = JSON.parse(localStorage.getItem('contactsApp'));
     },
@@ -164,6 +176,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
 h3 {
   margin: 40px 0 0;
 }
